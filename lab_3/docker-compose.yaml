@@ -1,0 +1,32 @@
+version: "3.9"
+
+services:
+  user_service:
+    build:
+      context: user_service
+      dockerfile: Dockerfile
+    container_name: user_service
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    networks:
+      - messenger-net
+    volumes:
+      - ./user_service:/work_dir
+
+  message_service:
+    build:
+      context: message_service
+      dockerfile: Dockerfile
+    container_name: message_service
+    restart: unless-stopped
+    ports:
+      - "8001:8000"
+    networks:
+      - messenger-net
+    volumes:
+      - ./message_service:/work_dir
+
+networks:
+  messenger-net:
+    driver: bridge

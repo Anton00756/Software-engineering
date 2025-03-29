@@ -1,0 +1,468 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "T-Mess",
+        "description": "User service",
+        "version": "1.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8000"
+        }
+    ],
+    "paths": {
+        "/auth/token": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Authenticate in system",
+                "operationId": "login_for_access_token_auth_token_post",
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Body_login_for_access_token_auth_token_post"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Incorrect username or password"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/user/register": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Register new user",
+                "operationId": "register_user_user_register_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UserCreate"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthResponse"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "User already exists"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/user/info": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get information about current user",
+                "operationId": "get_user_info_user_info_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserBase"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "User wasn`t found"
+                    }
+                },
+                "security": [
+                    {
+                        "OAuth2PasswordBearer": []
+                    }
+                ]
+            }
+        },
+        "/user/list": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get list of users",
+                "operationId": "get_user_list_user_list_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "items": {
+                                        "$ref": "#/components/schemas/UserBase"
+                                    },
+                                    "type": "array",
+                                    "title": "Response Get User List User List Get"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "OAuth2PasswordBearer": []
+                    }
+                ]
+            }
+        },
+        "/user/delete": {
+            "delete": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Delete current user",
+                "operationId": "delete_user_user_delete_delete",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "User wasn`t found"
+                    }
+                },
+                "security": [
+                    {
+                        "OAuth2PasswordBearer": []
+                    }
+                ]
+            }
+        },
+        "/user/search": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Search user",
+                "operationId": "search_user_user_search_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SearchUser"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "items": {
+                                        "$ref": "#/components/schemas/UserBase"
+                                    },
+                                    "type": "array",
+                                    "title": "Response Search User User Search Post"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "AuthResponse": {
+                "properties": {
+                    "access_token": {
+                        "type": "string",
+                        "title": "Access Token"
+                    },
+                    "token_type": {
+                        "type": "string",
+                        "title": "Token Type"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "access_token",
+                    "token_type"
+                ],
+                "title": "AuthResponse"
+            },
+            "AvaliableSearchingFields": {
+                "type": "string",
+                "enum": [
+                    "login",
+                    "name",
+                    "surname"
+                ],
+                "title": "AvaliableSearchingFields"
+            },
+            "Body_login_for_access_token_auth_token_post": {
+                "properties": {
+                    "grant_type": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "pattern": "^password$"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Grant Type"
+                    },
+                    "username": {
+                        "type": "string",
+                        "title": "Username"
+                    },
+                    "password": {
+                        "type": "string",
+                        "title": "Password"
+                    },
+                    "scope": {
+                        "type": "string",
+                        "title": "Scope",
+                        "default": ""
+                    },
+                    "client_id": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Client Id"
+                    },
+                    "client_secret": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Client Secret"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "username",
+                    "password"
+                ],
+                "title": "Body_login_for_access_token_auth_token_post"
+            },
+            "HTTPValidationError": {
+                "properties": {
+                    "detail": {
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        },
+                        "type": "array",
+                        "title": "Detail"
+                    }
+                },
+                "type": "object",
+                "title": "HTTPValidationError"
+            },
+            "SearchUser": {
+                "properties": {
+                    "fields": {
+                        "items": {
+                            "$ref": "#/components/schemas/AvaliableSearchingFields"
+                        },
+                        "type": "array",
+                        "minItems": 1,
+                        "title": "Fields",
+                        "default": [
+                            "login",
+                            "name",
+                            "surname"
+                        ]
+                    },
+                    "value": {
+                        "type": "string",
+                        "minLength": 1,
+                        "title": "Value"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "value"
+                ],
+                "title": "SearchUser"
+            },
+            "UserBase": {
+                "properties": {
+                    "login": {
+                        "type": "string",
+                        "minLength": 1,
+                        "title": "Login"
+                    },
+                    "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "title": "Name"
+                    },
+                    "surname": {
+                        "type": "string",
+                        "minLength": 1,
+                        "title": "Surname"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "login",
+                    "name",
+                    "surname"
+                ],
+                "title": "UserBase"
+            },
+            "UserCreate": {
+                "properties": {
+                    "login": {
+                        "type": "string",
+                        "minLength": 1,
+                        "title": "Login"
+                    },
+                    "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "title": "Name"
+                    },
+                    "surname": {
+                        "type": "string",
+                        "minLength": 1,
+                        "title": "Surname"
+                    },
+                    "password": {
+                        "type": "string",
+                        "minLength": 1,
+                        "title": "Password"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "login",
+                    "name",
+                    "surname",
+                    "password"
+                ],
+                "title": "UserCreate"
+            },
+            "ValidationError": {
+                "properties": {
+                    "loc": {
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "type": "array",
+                        "title": "Location"
+                    },
+                    "msg": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "type": {
+                        "type": "string",
+                        "title": "Error Type"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "title": "ValidationError"
+            }
+        },
+        "securitySchemes": {
+            "OAuth2PasswordBearer": {
+                "type": "oauth2",
+                "flows": {
+                    "password": {
+                        "scopes": {},
+                        "tokenUrl": "/auth/token"
+                    }
+                }
+            }
+        }
+    }
+}
