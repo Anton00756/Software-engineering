@@ -5,6 +5,7 @@ from api import auth_router, user_router
 from fastapi import FastAPI
 
 app = FastAPI(title='T-Mess', description='User service', version='1.0', docs_url='/api/docs')
+app.openapi_version = '3.0.2'
 
 app.include_router(auth_router, prefix='/auth', tags=['Auth'])
 app.include_router(user_router, prefix='/user', tags=['Users'])
