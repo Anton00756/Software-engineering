@@ -1,7 +1,11 @@
 import logging
+import random
+import uuid
+from datetime import datetime
 
 import psycopg2
 from db_models import User
+from pymongo import TEXT, mongo_client
 from sqlalchemy import URL, create_engine
 from sqlalchemy.orm import Session
 from utils import PasswordEngine
@@ -10,7 +14,9 @@ if __name__ == '__main__':
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.INFO)
     logger.addHandler(logging.StreamHandler())
-    init_db = False
+
+    # Init Postgres DB
+    init_pg_db = False
     with psycopg2.connect(
         database='messenger', user='postgres', password='postgres', host='postgres', port='5432'
     ) as connection:
@@ -20,8 +26,8 @@ if __name__ == '__main__':
                 with open('init.sql', 'r', encoding='utf-8') as file:
                     cursor.execute(file.read())
                 connection.commit()
-                init_db = True
-    if init_db:
+                init_pg_db = True
+    if init_pg_db:
         engine = create_engine(
             URL.create(
                 drivername='postgresql',
@@ -46,3 +52,21 @@ if __name__ == '__main__':
                     )
                 )
             session.commit()
+
+    # Init Mongo DB
+    client = mongo_client.MongoClient(host='mongo', port=27017, uuidRepresentation='standard')
+    messages = client['messenger']['messages']
+    messages.create_index('chat_id')
+    messages.create_index([('text', TEXT)])
+
+    for _ in range(3):
+        chat_id = uuid.uuid4()
+        for index in range(random.randint(1, 5)):
+            messages.insert_one(
+                {
+                    'chat_id': chat_id,
+                    'text': f'text in {chat_id} №{index}',
+                    'sender': 'user',
+                    'sending_time': datetime.now(),
+                }
+            )

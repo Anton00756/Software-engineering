@@ -44,7 +44,10 @@ services:
     volumes:
       - ./init_db:/work_dir
     depends_on:
-      - postgres
+      postgres:
+        condition: service_started
+      mongo:
+        condition: service_healthy
     entrypoint: ["python3", "main.py"]
 
   postgres:
@@ -63,10 +66,28 @@ services:
     volumes:
       - db_volume:/data/postgres
 
+  mongo:
+    container_name: mongo
+    image: mongo:5.0
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    networks:
+      - messenger-net
+    volumes:
+      - mongo_volume:/data/db
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 3s
+      timeout: 3s
+      retries: 5
+
 networks:
   messenger-net:
     driver: bridge
 
 volumes:
   db_volume:
+    driver: local
+  mongo_volume:
     driver: local
