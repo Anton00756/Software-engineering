@@ -1,0 +1,72 @@
+version: "3.9"
+
+services:
+  user_service:
+    build:
+      context: user_service
+      dockerfile: Dockerfile
+    container_name: user_service
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    networks:
+      - messenger-net
+    volumes:
+      - ./user_service:/work_dir
+    depends_on:
+      init_db:
+        condition: service_completed_successfully
+
+  message_service:
+    build:
+      context: message_service
+      dockerfile: Dockerfile
+    container_name: message_service
+    restart: unless-stopped
+    ports:
+      - "8001:8000"
+    networks:
+      - messenger-net
+    volumes:
+      - ./message_service:/work_dir
+    depends_on:
+      init_db:
+        condition: service_completed_successfully
+
+  init_db:
+    build:
+      context: init_db
+      dockerfile: Dockerfile
+    container_name: init_db
+    restart: on-failure
+    networks:
+      - messenger-net
+    volumes:
+      - ./init_db:/work_dir
+    depends_on:
+      - postgres
+    entrypoint: ["python3", "main.py"]
+
+  postgres:
+    container_name: postgres
+    image: postgres:14
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: messenger
+      PG_DATA: /data/postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - messenger-net
+    volumes:
+      - db_volume:/data/postgres
+
+networks:
+  messenger-net:
+    driver: bridge
+
+volumes:
+  db_volume:
+    driver: local
