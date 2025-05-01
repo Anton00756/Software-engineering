@@ -16,6 +16,11 @@ workspace {
                 technology "PostgreSQL"
             }
 
+            user_cache = container "Кэш данных пользователей" {
+                description "Хранит кэшированные данные пользователей"
+                technology "Redis"
+            }
+
             user_service = container "Сервис обработки пользователей" {
                 description "Обрабатывает запросы, связанные с пользователями" 
                 technology "Python/FastAPI"
@@ -45,6 +50,8 @@ workspace {
             user -> user_service "Создаёт пользователя и производит поиск пользователей"
             user_service -> user_db "Сохранение информации о пользователе" "JDBC"
             user_db -> user_service "Получение информации о пользователе" "JDBC"
+            user_service -> user_cache "Сохранение информации о пользователе"
+            user_cache -> user_service "Получение информации о пользователе"
 
             user_service -> group_chat "Предоставляет доступ пользователю к"
             user_service -> ptp_chat "Предоставляет доступ пользователю к"
