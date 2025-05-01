@@ -19,6 +19,68 @@ paths:
       responses:
         '200':
           description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /message/update/{message_id}:
+    put:
+      tags:
+      - Messages
+      summary: Send message
+      operationId: update_message_message_update__message_id__put
+      parameters:
+      - name: message_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Message Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageText'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          description: Invalid message_id format
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /message/delete/{message_id}:
+    delete:
+      tags:
+      - Messages
+      summary: Send message
+      operationId: delete_message_message_delete__message_id__delete
+      parameters:
+      - name: message_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Message Id
+      responses:
+        '200':
+          description: Successful Response
+        '400':
+          description: Invalid message_id format
         '422':
           description: Validation Error
           content:
@@ -34,10 +96,12 @@ paths:
       parameters:
       - name: chat_id
         in: query
-        required: true
+        required: false
         schema:
-          type: string
-          format: uuid
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
           title: Chat Id
       responses:
         '200':
@@ -49,6 +113,44 @@ paths:
                 items:
                   $ref: '#/components/schemas/MessageResponse'
                 title: Response Get Chat History Message History Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /message/find:
+    get:
+      tags:
+      - Messages
+      summary: Find text in message
+      operationId: find_text_in_message_message_find_get
+      parameters:
+      - name: text
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Text
+      - name: chat_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Chat Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MessageResponse'
+                title: Response Find Text In Message Message Find Get
         '422':
           description: Validation Error
           content:
@@ -68,14 +170,6 @@ components:
       title: HTTPValidationError
     Message:
       properties:
-        sender:
-          type: string
-          minLength: 1
-          title: Sender
-        sending_time:
-          type: string
-          format: date-time
-          title: Sending Time
         text:
           type: string
           minLength: 1
@@ -84,15 +178,6 @@ components:
           type: string
           format: uuid
           title: Chat Id
-      type: object
-      required:
-      - sender
-      - sending_time
-      - text
-      - chat_id
-      title: Message
-    MessageResponse:
-      properties:
         sender:
           type: string
           minLength: 1
@@ -101,16 +186,52 @@ components:
           type: string
           format: date-time
           title: Sending Time
+      type: object
+      required:
+      - text
+      - chat_id
+      - sender
+      - sending_time
+      title: Message
+    MessageResponse:
+      properties:
+        text:
+          type: string
+          minLength: 1
+          title: Text
+        chat_id:
+          type: string
+          format: uuid
+          title: Chat Id
+        sender:
+          type: string
+          minLength: 1
+          title: Sender
+        sending_time:
+          type: string
+          format: date-time
+          title: Sending Time
+        message_id:
+          type: string
+          title: Message Id
+      type: object
+      required:
+      - text
+      - chat_id
+      - sender
+      - sending_time
+      - message_id
+      title: MessageResponse
+    MessageText:
+      properties:
         text:
           type: string
           minLength: 1
           title: Text
       type: object
       required:
-      - sender
-      - sending_time
       - text
-      title: MessageResponse
+      title: MessageText
     ValidationError:
       properties:
         loc:
