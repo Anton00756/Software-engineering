@@ -1,6 +1,9 @@
+import json
+
 from database import get_db
 from db_models import User
 from fastapi import APIRouter, Depends, HTTPException, Response
+from redis import Redis
 from schemas.auth import AuthResponse
 from schemas.user import SearchUser, UserBase, UserCreate
 from sqlalchemy import or_
@@ -10,6 +13,7 @@ from utils import PasswordEngine, TokenEngine
 from .token_utils import get_current_user
 
 router = APIRouter()
+redis_client = Redis(host='redis', decode_responses=True)
 
 
 @router.post(
@@ -68,3 +72,21 @@ async def search_user(searching: SearchUser, db: Session = Depends(get_db)):
     return (
         db.query(User).filter(or_(*[getattr(User, field).op('~')(searching.value) for field in searching.fields])).all()
     )
+
+
+@router.post('/search/redis', summary='Search user with Redis', response_model=list[UserBase])
+async def search_user_with_redis(searching: SearchUser, db: Session = Depends(get_db)):
+    redis_key = json.dumps(searching.model_dump())
+    if cached_result := redis_client.get(redis_key):
+        return json.loads(cached_result)
+
+    result = list(
+        map(
+            lambda user: {'login': user.login, 'name': user.name, 'surname': user.surname},
+            db.query(User)
+            .filter(or_(*[getattr(User, field).op('~')(searching.value) for field in searching.fields]))
+            .all(),
+        )
+    )
+    redis_client.set(redis_key, json.dumps(result), ex=600)  # кэш на 10 минут
+    return result

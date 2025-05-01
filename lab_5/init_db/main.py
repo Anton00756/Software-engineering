@@ -42,7 +42,7 @@ if __name__ == '__main__':
             session.add(
                 User(login='admin', name='admin', surname='admin', password=PasswordEngine.hash_password('secret'))
             )
-            for i in range(5):
+            for i in range(100):
                 session.add(
                     User(
                         login=f'user{i}',

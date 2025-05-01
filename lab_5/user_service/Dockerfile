@@ -14,6 +14,8 @@ RUN chown -R user:user /work_dir
 
 RUN ln -sf /proc/1/fd/1 /var/log/container_logs.log
 
+RUN apk add wrk
+
 USER user
 
 RUN pip install wheel setuptools pip --upgrade

@@ -82,6 +82,15 @@ services:
       timeout: 3s
       retries: 5
 
+  redis:
+    container_name: redis
+    image: redis:7.4
+    restart: unless-stopped
+    ports:
+      - 6379:6379
+    networks:
+      - messenger-net
+
 networks:
   messenger-net:
     driver: bridge
