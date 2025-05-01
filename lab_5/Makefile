@@ -15,3 +15,6 @@ get_openapi:
 	mv user_service/openapi.yaml user_openapi.yaml
 	docker exec message_service python3 get_openapi.py
 	mv message_service/openapi.yaml message_openapi.yaml
+
+test_redis:
+	docker exec user_service sh wrk/test_redis.sh
